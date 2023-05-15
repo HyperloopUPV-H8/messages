@@ -1,0 +1,17 @@
+{
+    "boardId": 2,
+    "timestamp": {
+        "counter": 1233,
+        "second": 32,
+        "minute": 12,
+        "hour": 8,
+        "day": 25,
+        "month": 7,
+        "year": 2023
+    },
+    "protection": {
+        "name": "VCELL1",
+        "type": "ERROR_HANDLER",
+        "data": "The vehicle exploded and has become a giant ball of flamable material directed to the audience of the EHW"
+    }
+}
