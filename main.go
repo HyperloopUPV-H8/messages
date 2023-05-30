@@ -42,7 +42,7 @@ func main() {
 		log.Fatalln(color.RedString("error parsing board ids: %s", err))
 	}
 
-	msgGenerator := NewMessageGenerator(kindToId, boardToId)
+	msgGenerator := NewMessageGenerator(exclude(exclude(kindToId, "state_orders"), "blcu_ack"), boardToId)
 
 	ordGenerator := NewOrderGenerator(kindToId["state_orders"], getOrders(boards), boardToId)
 
@@ -175,4 +175,14 @@ func getOrders(boards map[string]models.Board) map[string][]uint16 {
 		orders[board.Name] = stateOrders
 	}
 	return orders
+}
+
+func exclude[K comparable, V any](m map[K]V, item K) map[K]V {
+	new := make(map[K]V)
+	for k, v := range m {
+		if k != item {
+			new[k] = v
+		}
+	}
+	return new
 }
