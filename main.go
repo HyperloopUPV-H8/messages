@@ -73,7 +73,8 @@ func writeLoop(conn *net.TCPConn, wg *sync.WaitGroup) {
 		idBuf := make([]byte, 2)
 		binary.LittleEndian.PutUint16(idBuf, uint16(id))
 
-		fullMessage := append(idBuf, payload...)
+		fullMessage := append(idBuf, '\n', '\n')
+		fullMessage = append(fullMessage, payload...)
 
 		_, err = conn.Write(fullMessage)
 

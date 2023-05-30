@@ -16,10 +16,32 @@ func NewMessageGenerator() MessageGenerator {
 	}
 }
 
-func (gen *MessageGenerator) New() (MessageAdapter, int) {
+func (gen *MessageGenerator) New() (any, int) {
+	kinds := []string{"protection", "info"}
+
+	kind := kinds[rand.Intn(len(kinds))]
+
+	if kind == "protection" {
+		return getProtectionMessage()
+
+	} else {
+		return getInfoMessage()
+	}
+
+}
+
+func getInfoMessage() (InfoMessageAdapter, int) {
+	return InfoMessageAdapter{
+		BoardId:   2,
+		Timestamp: randomTimestamp(),
+		Msg:       "asdfljdsf asdlfj alsjd fasdk kflkjsda k kdsaj jsdlkfjalñsjdfajkdslfa klasjdflkad > 10",
+	}, 1
+}
+
+func getProtectionMessage() (ProtectionMessageAdapter, int) {
 	protection, id := randomProtection()
 
-	return MessageAdapter{
+	return ProtectionMessageAdapter{
 		BoardId:    2,
 		Timestamp:  randomTimestamp(),
 		Protection: protection,
@@ -27,7 +49,7 @@ func (gen *MessageGenerator) New() (MessageAdapter, int) {
 }
 
 func randomProtection() (ProtectionAdapter, int) {
-	messagesKinds := map[string]int{"warning": 1, "fault": 2}
+	messagesKinds := map[string]int{"warning": 2, "fault": 3}
 	kind := RandKey(messagesKinds)
 
 	protectionKinds := []string{"OUT_OF_BOUNDS", "LOWER_BOUND", "UPPER_BOUND", "NOT_EQUALS", "EQUALS", "TIME_ACCUMULATION", "ERROR_HANDLER"}
@@ -69,7 +91,7 @@ func randomProtectionData(kind string) any {
 			Want:  rand.Float64() * 100,
 		}
 	case "TIME_ACCUMULATION":
-		return vehicle_models.TimeAccumulation{
+		return vehicle_models.TimeLimit{
 			Value:     rand.Float64() * 100,
 			Bound:     rand.Float64() * 100,
 			TimeLimit: rand.Float64() * 100,
