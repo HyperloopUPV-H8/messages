@@ -14,5 +14,20 @@ func RandKey[K comparable, V any](m map[K]V) K {
 		i++
 	}
 
-	panic("should have returned")
+	panic("failed to generate random key")
+}
+
+func RandVal[K comparable, V any](m map[K]V) V {
+	index := rand.Intn(len(m))
+
+	i := 0
+	for _, val := range m {
+		if i == index {
+			return val
+		}
+
+		i++
+	}
+
+	panic("failed to generate random value")
 }

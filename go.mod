@@ -5,11 +5,14 @@ go 1.19
 require (
 	github.com/HyperloopUPV-H8/Backend-H8 v1.0.1
 	github.com/fatih/color v1.15.0
+	github.com/pelletier/go-toml/v2 v2.0.8
+	github.com/pkg/errors v0.9.1
 )
 
 require (
 	cloud.google.com/go/compute v1.12.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.1 // indirect
+	github.com/HyperloopUPV-H8/ade-linter v0.0.0-20230502150353-66a5396676ec // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -38,4 +41,4 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 )
 
-replace github.com/HyperloopUPV-H8/Backend-H8 => ../h8-backend/src
+replace github.com/HyperloopUPV-H8/Backend-H8 => ../../../back/backend/src
