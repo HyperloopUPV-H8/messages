@@ -18,7 +18,7 @@ func NewMessageGenerator(kinds, boardIds map[string]uint16) MessageGenerator {
 	}
 }
 
-func (generator MessageGenerator) New() (any, uint16) {
+func (generator MessageGenerator) New() Message {
 	kind := RandKey(generator.kinds)
 
 	if kind == "info" {
@@ -28,28 +28,30 @@ func (generator MessageGenerator) New() (any, uint16) {
 	return generator.getProtectionMessage(kind)
 }
 
-func (generator MessageGenerator) getInfoMessage() (InfoMessageAdapter, uint16) {
+func (generator MessageGenerator) getInfoMessage() InfoMessageAdapter {
 	return InfoMessageAdapter{
+		id:        generator.kinds["info"],
 		BoardId:   RandVal(generator.boardIds),
 		Timestamp: randomTimestamp(),
 		Msg:       "We are about to win, if you are a member of the femenine genere, please be aware of Juan. You have been informed.",
-	}, generator.kinds["info"]
+	}
 }
 
-func (generator MessageGenerator) getProtectionMessage(kind string) (ProtectionMessageAdapter, uint16) {
+func (generator MessageGenerator) getProtectionMessage(kind string) ProtectionMessageAdapter {
 	protection := generator.randomProtection(kind)
 
 	return ProtectionMessageAdapter{
+		id:         generator.kinds[kind],
 		BoardId:    RandVal(generator.boardIds),
 		Timestamp:  randomTimestamp(),
 		Protection: protection,
-	}, generator.kinds[kind]
+	}
 }
 
 var protectionKinds = []string{"OUT_OF_BOUNDS", "LOWER_BOUND", "UPPER_BOUND", "NOT_EQUALS", "EQUALS", "TIME_ACCUMULATION", "ERROR_HANDLER"}
 
 func (generator MessageGenerator) randomProtection(kind string) ProtectionAdapter {
-	protectionKind := protectionKinds[rand.Intn(len(protectionKinds))]
+	protectionKind := protectionKinds[RandInt(len(protectionKinds))]
 
 	return ProtectionAdapter{
 		Name: "VCELL1",
