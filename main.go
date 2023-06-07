@@ -119,7 +119,7 @@ func sendMessage(conn *net.TCPConn, msgGenerator *MessageGenerator) error {
 	buffer = append(buffer, '\n', '\n')
 	buffer = append(buffer, payload...)
 
-	_, err = conn.Write(buffer)
+	_, err = conn.Write(append(buffer, 0x00))
 	log.Println(color.GreenString("[%s] Write (%d)", conn.RemoteAddr(), id))
 	return err
 }
@@ -131,6 +131,7 @@ func sendOrder(conn *net.TCPConn, ordGenerator *OrderGenerator) error {
 	}
 
 	_, err = conn.Write(stateOrders)
+	log.Println(color.GreenString("[%s] Write State Orders", conn.RemoteAddr()))
 	return err
 }
 

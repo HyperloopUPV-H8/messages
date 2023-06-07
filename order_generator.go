@@ -33,6 +33,7 @@ func (generator OrderGenerator) New() ([]byte, error) {
 		orders.Add(generator.stateOrders[board][rand.Intn(len(generator.stateOrders[board]))])
 	}
 
+	buffer = append(buffer, byte(len(orders.AsSlice())))
 	for _, order := range orders.AsSlice() {
 		buffer = binary.LittleEndian.AppendUint16(buffer, order)
 	}

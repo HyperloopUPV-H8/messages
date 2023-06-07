@@ -12,7 +12,7 @@ require (
 require (
 	cloud.google.com/go/compute v1.12.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.1 // indirect
-	github.com/HyperloopUPV-H8/ade-linter v0.0.0-20230502150353-66a5396676ec // indirect
+	github.com/HyperloopUPV-H8/ade-linter v0.0.0-20230530153315-3379f05a664f // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
