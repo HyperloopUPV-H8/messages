@@ -3,7 +3,7 @@ package main
 import "math/rand"
 
 func RandKey[K comparable, V any](m map[K]V) K {
-	index := rand.Intn(len(m))
+	index := RandInt(len(m))
 
 	i := 0
 	for key := range m {
@@ -30,4 +30,12 @@ func RandVal[K comparable, V any](m map[K]V) V {
 	}
 
 	panic("failed to generate random value")
+}
+
+func RandInt(n int) int {
+	if n == 0 {
+		return 0
+	}
+
+	return rand.Intn(n)
 }

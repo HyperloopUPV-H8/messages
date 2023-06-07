@@ -1,14 +1,52 @@
 package main
 
 import (
+	"bytes"
 	"encoding/binary"
-	"math/rand"
 )
 
 type OrderGenerator struct {
 	id          uint16
 	stateOrders map[string][]uint16
 	boardToId   map[string]uint16
+}
+
+type StateOrders struct {
+	Id      uint16
+	BoardId uint16
+	Len     uint8
+	Orders  []uint16
+}
+
+func (o StateOrders) Bytes() ([]byte, error) {
+	buf := new(bytes.Buffer)
+	err := binary.Write(buf, binary.LittleEndian, &o.Id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(buf, binary.LittleEndian, &o.BoardId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(buf, binary.LittleEndian, &o.Len)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, order := range o.Orders {
+		err = binary.Write(buf, binary.LittleEndian, &order)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return buf.Bytes(), nil
 }
 
 func NewOrderGenerator(id uint16, stateOrders map[string][]uint16, boardToId map[string]uint16) OrderGenerator {
@@ -19,26 +57,23 @@ func NewOrderGenerator(id uint16, stateOrders map[string][]uint16, boardToId map
 	}
 }
 
-func (generator OrderGenerator) New() ([]byte, error) {
-	buffer := []byte{}
-	buffer = binary.LittleEndian.AppendUint16(buffer, generator.id)
+func (generator OrderGenerator) New() StateOrders {
+	boardName := RandKey(generator.stateOrders)
+	boardId := generator.boardToId[boardName]
 
-	board := RandKey(generator.stateOrders)
-	buffer = binary.LittleEndian.AppendUint16(buffer, generator.boardToId[board])
-
-	orderNum := rand.Intn(len(generator.stateOrders[board]))
-
+	orderNum := RandInt(len(generator.stateOrders[boardName]))
 	orders := &Set[uint16]{}
 	for i := 0; i < orderNum; i++ {
-		orders.Add(generator.stateOrders[board][rand.Intn(len(generator.stateOrders[board]))])
+		orders.Add(generator.stateOrders[boardName][RandInt(len(generator.stateOrders[boardName]))])
 	}
 
-	buffer = append(buffer, byte(len(orders.AsSlice())))
-	for _, order := range orders.AsSlice() {
-		buffer = binary.LittleEndian.AppendUint16(buffer, order)
+	return StateOrders{
+		Id:      generator.id,
+		BoardId: boardId,
+		Len:     byte(len(orders.AsSlice())),
+		Orders:  orders.AsSlice(),
 	}
 
-	return buffer, nil
 }
 
 type Set[T comparable] map[T]struct{}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/binary"
-	"encoding/json"
 	"flag"
 	"log"
 	"net"
@@ -17,8 +16,8 @@ import (
 )
 
 var addrFlag = flag.String("a", "127.0.0.4:50500", "address of the tcp server")
-var messageDelay = flag.Duration("md", time.Second, "delay between messages")
-var orderDelay = flag.Duration("od", time.Second, "delay between state orders")
+var messageDelay = flag.Duration("md", time.Millisecond*200, "delay between messages")
+var orderDelay = flag.Duration("od", time.Millisecond*200, "delay between state orders")
 var configPath = flag.String("c", "./config.toml", "path to the config")
 
 func main() {
@@ -42,7 +41,7 @@ func main() {
 		log.Fatalln(color.RedString("error parsing board ids: %s", err))
 	}
 
-	msgGenerator := NewMessageGenerator(exclude(exclude(kindToId, "state_orders"), "blcu_ack"), boardToId)
+	msgGenerator := NewMessageGenerator(filter(filter(kindToId, "state_orders"), "blcu_ack"), boardToId)
 
 	ordGenerator := NewOrderGenerator(kindToId["state_orders"], getOrders(boards), boardToId)
 
@@ -89,48 +88,48 @@ func handleConn(conn *net.TCPConn, wg *sync.WaitGroup, msgGenerator *MessageGene
 	defer msg_ticker.Stop()
 	ord_ticker := time.NewTicker(*orderDelay)
 	defer ord_ticker.Stop()
+
 	for {
 		select {
 		case <-msg_ticker.C:
-			err := sendMessage(conn, msgGenerator)
+			err := createAndSendMessage(conn, msgGenerator)
 			if err != nil {
 				log.Println(color.RedString("[%s] Error writing: %s", err))
 				return
 			}
 		case <-ord_ticker.C:
-			err := sendOrder(conn, ordGenerator)
+			err := createAndSendOrder(conn, ordGenerator)
 			if err != nil {
 				log.Println(color.RedString("[%s] Error writing: %s", err))
 				return
 			}
 		}
 	}
+
 }
 
-func sendMessage(conn *net.TCPConn, msgGenerator *MessageGenerator) error {
-	message, id := msgGenerator.New()
-	payload, err := json.Marshal(message)
+func createAndSendMessage(conn *net.TCPConn, msgGenerator *MessageGenerator) error {
+	message := msgGenerator.New()
+	buf, err := message.Bytes()
+
 	if err != nil {
 		return err
 	}
 
-	buffer := make([]byte, 2)
-	binary.LittleEndian.PutUint16(buffer, uint16(id))
-	buffer = append(buffer, '\n', '\n')
-	buffer = append(buffer, payload...)
-
-	_, err = conn.Write(append(buffer, 0x00))
-	log.Println(color.GreenString("[%s] Write (%d)", conn.RemoteAddr(), id))
+	_, err = conn.Write(buf)
+	log.Println(color.GreenString("[%s] Write Message", conn.RemoteAddr()))
 	return err
 }
 
-func sendOrder(conn *net.TCPConn, ordGenerator *OrderGenerator) error {
-	stateOrders, err := ordGenerator.New()
+func createAndSendOrder(conn *net.TCPConn, ordGenerator *OrderGenerator) error {
+	stateOrder := ordGenerator.New()
+	buf, err := stateOrder.Bytes()
+
 	if err != nil {
 		return err
 	}
 
-	_, err = conn.Write(stateOrders)
+	_, err = conn.Write(buf)
 	log.Println(color.GreenString("[%s] Write State Orders", conn.RemoteAddr()))
 	return err
 }
@@ -178,7 +177,7 @@ func getOrders(boards map[string]models.Board) map[string][]uint16 {
 	return orders
 }
 
-func exclude[K comparable, V any](m map[K]V, item K) map[K]V {
+func filter[K comparable, V any](m map[K]V, item K) map[K]V {
 	new := make(map[K]V)
 	for k, v := range m {
 		if k != item {
