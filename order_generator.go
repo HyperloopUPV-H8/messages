@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"math/rand"
 )
 
 type OrderGenerator struct {
-	id          uint16
+	addId       uint16
+	removeId    uint16
 	stateOrders map[string][]uint16
 	boardToId   map[string]uint16
 }
@@ -49,9 +51,10 @@ func (o StateOrders) Bytes() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func NewOrderGenerator(id uint16, stateOrders map[string][]uint16, boardToId map[string]uint16) OrderGenerator {
+func NewOrderGenerator(addId uint16, removeId uint16, stateOrders map[string][]uint16, boardToId map[string]uint16) OrderGenerator {
 	return OrderGenerator{
-		id:          id,
+		addId:       addId,
+		removeId:    removeId,
 		stateOrders: stateOrders,
 		boardToId:   boardToId,
 	}
@@ -67,8 +70,15 @@ func (generator OrderGenerator) New() StateOrders {
 		orders.Add(generator.stateOrders[boardName][RandInt(len(generator.stateOrders[boardName]))])
 	}
 
+	var id uint16
+	if rand.Intn(2) == 0 {
+		id = generator.addId
+	} else {
+		id = generator.removeId
+	}
+
 	return StateOrders{
-		Id:      generator.id,
+		Id:      id,
 		BoardId: boardId,
 		Len:     byte(len(orders.AsSlice())),
 		Orders:  orders.AsSlice(),

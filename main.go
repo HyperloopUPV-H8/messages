@@ -41,9 +41,9 @@ func main() {
 		log.Fatalln(color.RedString("error parsing board ids: %s", err))
 	}
 
-	msgGenerator := NewMessageGenerator(filter(filter(kindToId, "state_orders"), "blcu_ack"), boardToId)
+	msgGenerator := NewMessageGenerator(filter(filter(filter(kindToId, "add_state_orders"), "remove_state_orders"), "blcu_ack"), boardToId)
 
-	ordGenerator := NewOrderGenerator(kindToId["state_orders"], getOrders(boards), boardToId)
+	ordGenerator := NewOrderGenerator(kindToId["add_state_orders"], kindToId["remove_state_orders"], getOrders(boards), boardToId)
 
 	listener, err := createListener(*addrFlag)
 	if err != nil {
